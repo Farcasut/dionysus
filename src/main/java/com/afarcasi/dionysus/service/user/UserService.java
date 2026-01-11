@@ -1,8 +1,12 @@
 package com.afarcasi.dionysus.service.user;
 
+import com.afarcasi.dionysus.exception.UserEmailAlreadyExistsException;
+import com.afarcasi.dionysus.exception.UserNotFoundException;
 import com.afarcasi.dionysus.mapper.UserMapper;
 import com.afarcasi.dionysus.model.dto.user.UserCreateDTO;
+import com.afarcasi.dionysus.model.dto.user.UserPasswordUpdateDTO;
 import com.afarcasi.dionysus.model.dto.user.UserResponseDTO;
+import com.afarcasi.dionysus.model.dto.user.UserUpdateDTO;
 import com.afarcasi.dionysus.model.entity.user.User;
 import com.afarcasi.dionysus.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +26,7 @@ public class UserService {
     @Transactional
     public UserResponseDTO registerUser(UserCreateDTO dto) {
         if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
-            throw new RuntimeException("User with email " + dto.getEmail() + " already exists.");
+            throw new UserEmailAlreadyExistsException(dto.getEmail());
         }
 
         User user = new User();
@@ -46,9 +50,36 @@ public class UserService {
     }
 
     @Transactional
+    public UserResponseDTO updateUser(Long id, UserUpdateDTO dto) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
+        
+        // Check if email is being updated and if it's already taken by another user
+        if (dto.getEmail() != null && !dto.getEmail().equals(user.getEmail())) {
+            if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
+                throw new UserEmailAlreadyExistsException(dto.getEmail());
+            }
+        }
+        
+        userMapper.updateEntity(dto, user);
+        userRepository.save(user);
+        
+        return userMapper.toResponseDTO(user);
+    }
+
+    @Transactional
+    public void updatePassword(Long id, UserPasswordUpdateDTO dto) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
+        
+        user.setPasswordHash(dto.getNewPassword());
+        userRepository.save(user);
+    }
+
+    @Transactional
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
-            throw new RuntimeException("Cannot delete: User not found.");
+            throw new UserNotFoundException(id);
         }
         userRepository.deleteById(id);
     }

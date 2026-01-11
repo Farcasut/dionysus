@@ -1,7 +1,11 @@
 package com.afarcasi.dionysus.controller.user;
 
+import com.afarcasi.dionysus.exception.UserEmailAlreadyExistsException;
+import com.afarcasi.dionysus.exception.UserNotFoundException;
 import com.afarcasi.dionysus.model.dto.user.UserCreateDTO;
+import com.afarcasi.dionysus.model.dto.user.UserPasswordUpdateDTO;
 import com.afarcasi.dionysus.model.dto.user.UserResponseDTO;
+import com.afarcasi.dionysus.model.dto.user.UserUpdateDTO;
 import com.afarcasi.dionysus.service.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,8 +29,11 @@ public class UserController {
     @PostMapping("/register")
     @Operation(summary = "Register a new user with a specific role")
     public ResponseEntity<UserResponseDTO> register(@Valid @RequestBody @NotNull UserCreateDTO dto) {
-        return new ResponseEntity<>(userService.registerUser(dto),  HttpStatus.CREATED);
-
+        try {
+            return new ResponseEntity<>(userService.registerUser(dto), HttpStatus.CREATED);
+        } catch (UserEmailAlreadyExistsException e) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
     }
 
     @GetMapping("/{id}")
@@ -39,11 +46,39 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
+    @PutMapping("/{id}")
+    @Operation(summary = "Update user details(firstName, lastName, email)")
+    public ResponseEntity<UserResponseDTO> updateUser(@PathVariable Long id, @Valid @RequestBody @NotNull UserUpdateDTO dto) {
+        try {
+            UserResponseDTO updatedUser = userService.updateUser(id, dto);
+            return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+        } catch (UserNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (UserEmailAlreadyExistsException e) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
+    }
+
+    @PatchMapping("/{id}/password")
+    @Operation(summary = "Update user password")
+    public ResponseEntity<Void> updatePassword(@PathVariable Long id, @Valid @RequestBody @NotNull UserPasswordUpdateDTO dto) {
+        try {
+            userService.updatePassword(id, dto);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (UserNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Delete a user account")
-    public void deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        try {
+            userService.deleteUser(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (UserNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
 }
