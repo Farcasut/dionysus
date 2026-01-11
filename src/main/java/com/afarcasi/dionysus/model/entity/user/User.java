@@ -1,6 +1,7 @@
 package com.afarcasi.dionysus.model.entity.user;
 
 import com.afarcasi.dionysus.model.entity.event.Event;
+import com.afarcasi.dionysus.model.entity.order.Order;
 import com.afarcasi.dionysus.model.entity.venue.Venue;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
