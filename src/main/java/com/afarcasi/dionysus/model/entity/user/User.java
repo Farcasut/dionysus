@@ -26,6 +26,11 @@ public class User {
     @NotBlank
     private String email;
 
+    @Column(unique = true)
+    @NotBlank
+    @NotNull
+    private String username;
+
     @Enumerated(EnumType.STRING)
     @NotNull(message = "User must have a role")
     private UserCategory role;
@@ -34,8 +39,11 @@ public class User {
     private String passwordHash;
 
     @NotNull
+    @NotBlank
     private String firstName;
+
     @NotNull
+    @NotBlank
     private String lastName;
 
     @OneToMany(mappedBy = "owner")
