@@ -18,7 +18,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Email
@@ -29,6 +30,13 @@ public class User {
     @NotNull(message = "User must have a role")
     private UserCategory role;
 
+    @NotNull
+    private String passwordHash;
+
+    @NotNull
+    private String firstName;
+    @NotNull
+    private String lastName;
 
     @OneToMany(mappedBy = "owner")
     // For Venue Owners
