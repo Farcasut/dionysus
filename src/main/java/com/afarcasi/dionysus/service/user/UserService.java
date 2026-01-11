@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -33,5 +35,21 @@ public class UserService {
         userRepository.save(user);
 
         return userMapper.toResponseDTO(user);
+    }
+
+    public Optional<UserResponseDTO> findById(Long id) {
+       Optional<User> user = userRepository.findById(id);
+       if (user.isPresent()) {
+           return Optional.of(userMapper.toResponseDTO(user.get()));
+       }
+       return Optional.empty();
+    }
+
+    @Transactional
+    public void deleteUser(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new RuntimeException("Cannot delete: User not found.");
+        }
+        userRepository.deleteById(id);
     }
 }

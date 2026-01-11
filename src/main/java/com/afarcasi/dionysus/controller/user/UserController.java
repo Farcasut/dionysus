@@ -10,10 +10,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
@@ -30,5 +29,21 @@ public class UserController {
 
     }
 
+    @GetMapping("/{id}")
+    @Operation(summary = "Get user details by their ID")
+    public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id) {
+        Optional<UserResponseDTO> user = userService.findById(id);
+        if (user.isPresent()) {
+            return new ResponseEntity<>(user.get(), HttpStatus.FOUND);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Delete a user account")
+    public void deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+    }
 
 }
