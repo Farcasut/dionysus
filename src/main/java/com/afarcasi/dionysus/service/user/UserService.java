@@ -1,9 +1,11 @@
 package com.afarcasi.dionysus.service.user;
 
+import com.afarcasi.dionysus.exception.InvalidCredentialsException;
 import com.afarcasi.dionysus.exception.UserEmailAlreadyExistsException;
 import com.afarcasi.dionysus.exception.UserNotFoundException;
 import com.afarcasi.dionysus.mapper.UserMapper;
 import com.afarcasi.dionysus.model.dto.user.UserCreateDTO;
+import com.afarcasi.dionysus.model.dto.user.UserLoginDTO;
 import com.afarcasi.dionysus.model.dto.user.UserPasswordUpdateDTO;
 import com.afarcasi.dionysus.model.dto.user.UserResponseDTO;
 import com.afarcasi.dionysus.model.dto.user.UserUpdateDTO;
@@ -47,6 +49,22 @@ public class UserService {
            return Optional.of(userMapper.toResponseDTO(user.get()));
        }
        return Optional.empty();
+    }
+
+    public UserResponseDTO login(UserLoginDTO dto) {
+        Optional<User> userOptional = userRepository.findByUsername(dto.getUsername());
+        
+        if (userOptional.isEmpty()) {
+            throw new InvalidCredentialsException();
+        }
+        
+        User user = userOptional.get();
+        
+        if (!user.getPasswordHash().equals(dto.getPassword())) {
+            throw new InvalidCredentialsException();
+        }
+        
+        return userMapper.toResponseDTO(user);
     }
 
     @Transactional

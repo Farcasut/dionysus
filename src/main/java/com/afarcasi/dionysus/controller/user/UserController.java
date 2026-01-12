@@ -1,8 +1,10 @@
 package com.afarcasi.dionysus.controller.user;
 
+import com.afarcasi.dionysus.exception.InvalidCredentialsException;
 import com.afarcasi.dionysus.exception.UserEmailAlreadyExistsException;
 import com.afarcasi.dionysus.exception.UserNotFoundException;
 import com.afarcasi.dionysus.model.dto.user.UserCreateDTO;
+import com.afarcasi.dionysus.model.dto.user.UserLoginDTO;
 import com.afarcasi.dionysus.model.dto.user.UserPasswordUpdateDTO;
 import com.afarcasi.dionysus.model.dto.user.UserResponseDTO;
 import com.afarcasi.dionysus.model.dto.user.UserUpdateDTO;
@@ -33,6 +35,17 @@ public class UserController {
             return new ResponseEntity<>(userService.registerUser(dto), HttpStatus.CREATED);
         } catch (UserEmailAlreadyExistsException e) {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
+    }
+
+    @PostMapping("/login")
+    @Operation(summary = "Login with username and password")
+    public ResponseEntity<UserResponseDTO> login(@Valid @RequestBody @NotNull UserLoginDTO dto) {
+        try {
+            UserResponseDTO user = userService.login(dto);
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        } catch (InvalidCredentialsException e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
     }
 
