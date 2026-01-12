@@ -4,8 +4,10 @@ import com.afarcasi.dionysus.exception.InsufficientTicketsException;
 import com.afarcasi.dionysus.exception.TicketCategoryNotFoundException;
 import com.afarcasi.dionysus.exception.UserNotFoundException;
 import com.afarcasi.dionysus.mapper.OrderMapper;
+import com.afarcasi.dionysus.mapper.TicketMapper;
 import com.afarcasi.dionysus.model.dto.order.OrderViewDTO;
 import com.afarcasi.dionysus.model.dto.order.TicketSaleDTO;
+import com.afarcasi.dionysus.model.dto.ticket.TicketViewDTO;
 import com.afarcasi.dionysus.model.entity.order.Order;
 import com.afarcasi.dionysus.model.entity.ticket.Ticket;
 import com.afarcasi.dionysus.model.entity.ticketCategory.TicketCategory;
@@ -33,6 +35,7 @@ public class OrderService {
     private final TicketCategoryRepository ticketCategoryRepository;
     private final UserRepository userRepository;
     private final OrderMapper orderMapper;
+    private final TicketMapper ticketMapper;
 
     @Transactional
     public OrderViewDTO sellTickets(TicketSaleDTO dto) {
@@ -86,6 +89,12 @@ public class OrderService {
     public List<OrderViewDTO> findByCustomerId(Long customerId) {
         return orderRepository.findByCustomerId(customerId).stream()
                 .map(orderMapper::toViewDTO)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    public List<TicketViewDTO> findTicketsByOrderId(Long orderId) {
+        return ticketRepository.findByOrderId(orderId).stream()
+                .map(ticketMapper::toViewDTO)
                 .collect(java.util.stream.Collectors.toList());
     }
 }

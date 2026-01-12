@@ -5,6 +5,7 @@ import com.afarcasi.dionysus.exception.TicketCategoryNotFoundException;
 import com.afarcasi.dionysus.exception.UserNotFoundException;
 import com.afarcasi.dionysus.model.dto.order.OrderViewDTO;
 import com.afarcasi.dionysus.model.dto.order.TicketSaleDTO;
+import com.afarcasi.dionysus.model.dto.ticket.TicketViewDTO;
 import com.afarcasi.dionysus.service.order.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -63,5 +64,12 @@ public class OrderController {
     public ResponseEntity<List<OrderViewDTO>> getOrdersByCustomer(@PathVariable Long customerId) {
         List<OrderViewDTO> orders = orderService.findByCustomerId(customerId);
         return new ResponseEntity<>(orders, HttpStatus.OK);
+    }
+
+    @GetMapping("/{orderId}/tickets")
+    @Operation(summary = "Get all tickets for an order")
+    public ResponseEntity<List<TicketViewDTO>> getTicketsByOrder(@PathVariable Long orderId) {
+        List<TicketViewDTO> tickets = orderService.findTicketsByOrderId(orderId);
+        return new ResponseEntity<>(tickets, HttpStatus.OK);
     }
 }
