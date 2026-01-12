@@ -19,7 +19,13 @@ public class Event {
 
     @NotBlank
     private String title;
-    private LocalDateTime dateTime;
+
+    @NotBlank
+    private String description;
+
+    private LocalDateTime createdAt;
+
+    private LocalDateTime eventDate;
 
     @ManyToOne
     @JoinColumn(name = "organizer_id")
@@ -29,6 +35,9 @@ public class Event {
     @JoinColumn(name = "venue_id")
     private Venue venue;
 
+
+
     @OneToMany(mappedBy = "event")
     private List<TicketCategory> categories;
+
 }
